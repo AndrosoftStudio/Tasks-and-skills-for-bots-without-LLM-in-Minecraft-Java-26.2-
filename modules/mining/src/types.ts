@@ -6,7 +6,8 @@ export interface ItemEntity { id:number; name?:string; type?:string; position:Bl
 export interface MiningNavigationResult<T=unknown>{ ok:boolean; data?:T; error?:{code?:string;message?:string} }
 export interface MiningNavigation {
   goToBlock(params:{position:BlockPos;range?:number;profile?:MiningProfile},options?:{signal?:AbortSignal;timeoutMs?:number}):Promise<MiningNavigationResult>
-  goToEntity?(params:{entityId:number;range?:number;profile?:MiningProfile},options?:{signal?:AbortSignal;timeoutMs?:number}):Promise<MiningNavigationResult>
+  goToEntity?(params:{entityId:number;position:BlockPos;range?:number;profile?:MiningProfile},options?:{signal?:AbortSignal;timeoutMs?:number}):Promise<MiningNavigationResult>
+  isReachable(params:{position:BlockPos;profile?:MiningProfile},options?:{signal?:AbortSignal;timeoutMs?:number}):Promise<MiningNavigationResult<{reachable:boolean}>>
 }
 export interface MiningWorld {
   getBotPosition():BlockPos
