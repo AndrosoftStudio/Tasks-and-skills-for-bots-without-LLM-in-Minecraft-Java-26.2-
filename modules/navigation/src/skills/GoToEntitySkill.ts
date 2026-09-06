@@ -1,0 +1,2 @@
+import type { GoToEntityData, GoToEntityParams } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class GoToEntitySkill implements NavigationSkill<GoToEntityParams,GoToEntityData>{readonly name='goToEntity';readonly defaultTimeoutMs=90_000;constructor(private readonly service:NavigationService){}execute(p:GoToEntityParams,s?:AbortSignal){return this.service.goToEntity(p,s)}}

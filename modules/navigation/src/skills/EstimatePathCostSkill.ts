@@ -1,0 +1,2 @@
+import type { EstimatePathCostParams, PathCostEstimate } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class EstimatePathCostSkill implements NavigationSkill<EstimatePathCostParams,PathCostEstimate>{readonly name='estimatePathCost';readonly defaultTimeoutMs=10_000;constructor(private readonly service:NavigationService){}execute(p:EstimatePathCostParams,s?:AbortSignal){return this.service.estimatePathCost(p,s)}}

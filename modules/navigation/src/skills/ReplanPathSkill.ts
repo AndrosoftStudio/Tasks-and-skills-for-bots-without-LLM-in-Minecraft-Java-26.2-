@@ -1,0 +1,2 @@
+import type { PathSearchResult, ReplanPathParams } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class ReplanPathSkill implements NavigationSkill<ReplanPathParams,PathSearchResult>{readonly name='replanPath';readonly defaultTimeoutMs=10_000;constructor(private readonly service:NavigationService){}execute(p:ReplanPathParams,s?:AbortSignal){return this.service.replanPath(p,s)}}

@@ -1,0 +1,2 @@
+import type { EscapeDangerData, EscapeDangerParams } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class EscapeDangerSkill implements NavigationSkill<EscapeDangerParams,EscapeDangerData>{readonly name='escapeDanger';readonly defaultTimeoutMs=60_000;constructor(private readonly service:NavigationService){}execute(p:EscapeDangerParams,s?:AbortSignal){return this.service.escapeDanger(p,s)}}

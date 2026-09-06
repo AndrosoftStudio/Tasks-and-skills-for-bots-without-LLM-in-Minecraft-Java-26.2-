@@ -1,0 +1,2 @@
+import type { GoToPositionParams, NavigationExecutionData } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class GoToPositionSkill implements NavigationSkill<GoToPositionParams,NavigationExecutionData>{readonly name='goToPosition';readonly defaultTimeoutMs=90_000;constructor(private readonly service:NavigationService){}execute(p:GoToPositionParams,s?:AbortSignal){return this.service.goToPosition(p,s)}}

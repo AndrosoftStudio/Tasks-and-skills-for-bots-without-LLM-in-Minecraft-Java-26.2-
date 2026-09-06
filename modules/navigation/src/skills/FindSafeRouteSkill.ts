@@ -1,0 +1,2 @@
+import type { FindSafeRouteParams, PathSearchResult } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class FindSafeRouteSkill implements NavigationSkill<FindSafeRouteParams,PathSearchResult>{readonly name='findSafeRoute';readonly defaultTimeoutMs=12_000;constructor(private readonly service:NavigationService){}execute(p:FindSafeRouteParams,s?:AbortSignal){return this.service.findSafeRoute(p,s)}}

@@ -1,0 +1,2 @@
+import type { FollowPathParams, NavigationExecutionData } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class FollowPathSkill implements NavigationSkill<FollowPathParams,NavigationExecutionData>{readonly name='followPath';readonly defaultTimeoutMs=60_000;constructor(private readonly service:NavigationService){}execute(p:FollowPathParams,s?:AbortSignal){return this.service.followPath(p,s)}}

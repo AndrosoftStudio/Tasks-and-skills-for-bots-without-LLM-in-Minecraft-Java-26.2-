@@ -1,0 +1,2 @@
+import type { IsReachableParams } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class IsReachableSkill implements NavigationSkill<IsReachableParams,{reachable:boolean;cost?:number;pathLength?:number}>{readonly name='isReachable';readonly defaultTimeoutMs=10_000;constructor(private readonly service:NavigationService){}execute(p:IsReachableParams,s?:AbortSignal){return this.service.isReachable(p,s)}}

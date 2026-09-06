@@ -1,0 +1,2 @@
+import type { NavigationExecutionData, ReturnHomeParams } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class ReturnHomeSkill implements NavigationSkill<ReturnHomeParams,NavigationExecutionData>{readonly name='returnHome';readonly defaultTimeoutMs=120_000;constructor(private readonly service:NavigationService){}execute(p:ReturnHomeParams,s?:AbortSignal){return this.service.returnHome(p,s)}}

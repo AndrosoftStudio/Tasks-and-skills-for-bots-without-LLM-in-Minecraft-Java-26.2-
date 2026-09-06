@@ -1,0 +1,2 @@
+import type { GoToBlockParams, NavigationExecutionData } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class GoToBlockSkill implements NavigationSkill<GoToBlockParams,NavigationExecutionData>{readonly name='goToBlock';readonly defaultTimeoutMs=90_000;constructor(private readonly service:NavigationService){}execute(p:GoToBlockParams,s?:AbortSignal){return this.service.goToBlock(p,s)}}

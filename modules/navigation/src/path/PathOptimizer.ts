@@ -1,0 +1,3 @@
+import type { NavigationPath, NavigationWaypoint } from '../types/navigation.js'
+import { PathValidator } from './PathValidator.js'
+export class PathOptimizer { constructor(private readonly validator:PathValidator){} optimize(path:NavigationPath):NavigationPath{const w=path.waypoints;if(w.length<3)return path;const out:NavigationWaypoint[]=[];let i=0;while(i<w.length){out.push(w[i]!);if(w[i]!.action!=='walk'){i++;continue}let best=i+1;for(let j=i+2;j<w.length;j++){if(w[j]!.action!=='walk'||!this.validator.isSegmentValid(w[i]!,w[j]!))break;best=j}i=Math.max(i+1,best)}return{...path,waypoints:out,length:out.length}} }

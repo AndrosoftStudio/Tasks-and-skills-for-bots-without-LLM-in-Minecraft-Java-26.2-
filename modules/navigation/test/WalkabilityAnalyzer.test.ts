@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import { WalkabilityAnalyzer } from '../src/world/WalkabilityAnalyzer.js';import { MockWorld } from './helpers.js'
+test('flat ground is standable',()=>{const a=new WalkabilityAnalyzer(new MockWorld());const s=a.standability(0,0,0);assert.equal(s.valid,true);assert.equal(s.mode,'ground')})
+test('water becomes swimming node',()=>{const w=new MockWorld();w.set(0,0,0,'water',[]);const s=new WalkabilityAnalyzer(w).standability(0,0,0);assert.equal(s.valid,true);assert.equal(s.mode,'swimming')})
+test('ladder becomes climbing node',()=>{const w=new MockWorld();w.set(0,0,0,'ladder',[[0,0,0,0.1,1,1]]);const s=new WalkabilityAnalyzer(w).standability(0,0,0);assert.equal(s.valid,true);assert.equal(s.mode,'climbing')})
+test('hazard is rejected in safe mode',()=>{const w=new MockWorld();w.set(0,0,0,'lava',[]);const s=new WalkabilityAnalyzer(w).standability(0,0,0,{avoidHazards:true});assert.equal(s.valid,false);assert.equal(s.reason,'hazard')})
+test('partial collision at feet is not passable',()=>{const w=new MockWorld();w.set(0,0,0,'oak_slab',[[0,0,0,1,0.5,1]]);const s=new WalkabilityAnalyzer(w).standability(0,0,0);assert.equal(s.valid,false)})
+test('slab surface produces fractional feet height',()=>{const w=new MockWorld();w.set(0,0,0,'stone_slab',[[0,0,0,1,.5,1]]);const a=new WalkabilityAnalyzer(w);const s=a.nearestStandable(0,0,0,0,1);assert.equal(s?.valid,true);assert.equal(s?.feetY,.5)})
+test('body width catches side collision shape',()=>{const w=new MockWorld();w.set(0,0,0,'custom_partial',[[.75,0,0,1,1,1]]);const a=new WalkabilityAnalyzer(w);const s=a.standability(0,0,0);assert.equal(s.valid,false);assert.equal(s.reason,'body_collision')})

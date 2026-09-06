@@ -11,22 +11,22 @@ Planner / State Machine / Behavior Tree
                 ↓
              Skills
                 ↓
-      Navigation / Movement
+            Navigation
+                ↓
+             Movement
                 ↓
             Mineflayer
                 ↓
         Minecraft Java 26.2
 ```
 
-As skills possuem contratos previsíveis com validação, execução, verificação, recuperação, timeout, cancelamento e cleanup.
-
 ## Módulos
 
 | Módulo | Status | Descrição |
 | --- | --- | --- |
 | `movement` | ✅ V2 | Movimentação primitiva, percepção espacial local, obstáculos, verticalidade, água/escalada, recovery e follow dinâmico |
-| `navigation` | ⏳ Futuro | Pathfinding, rotas, `findPath`, `goToBlock`, `goToEntity`, `escapeDanger`, `returnHome` |
-| `mining` | ⏳ Futuro | Busca, mineração, veios e coleta |
+| `navigation` | ✅ V1 | A* 3D, rotas, custos, collision shapes/AABB, slabs/stairs, água/escalada, path validation, replanning, alvos móveis, escape e return home |
+| `mining` | ⏳ Próximo | Busca, mineração, veios e coleta |
 | `building` | ⏳ Futuro | Colocação, quebra e construção composta |
 | `inventory` | ⏳ Futuro | Consulta, seleção, movimentação e equipamento de itens |
 | `crafting` | ⏳ Futuro | Receitas e crafting |
@@ -45,19 +45,25 @@ As skills possuem contratos previsíveis com validação, execução, verificaç
 
 ```text
 modules/
-  movement/
-  navigation/      # futuro
-  mining/          # futuro
+  movement/       # ✅ Movement V2
+  navigation/     # ✅ Navigation V1
+  mining/         # próximo
   ...
 ```
 
-Cada módulo deve permanecer utilizável de forma determinística e independente de serviços externos de IA.
+## Movement V2
 
-## Primeiro módulo: Movement V2
+Fornece `moveTo`, `followPlayer`, `stop`, `jump`, `sprint`, `lookAt`, `avoidObstacle`, `stepUp`, `safeDrop`, `climb` e `swim`, além de percepção espacial local e recovery.
 
-O módulo de movimentação inclui `moveTo`, `followPlayer`, `stop`, `jump`, `sprint`, `lookAt`, `avoidObstacle`, `stepUp`, `safeDrop`, `climb` e `swim`, além de percepção espacial por collision shapes, análise de terreno, obstacle solver local, stuck detection, recovery baseado na causa, reacquisition de jogador e ownership seguro de movimento.
+Veja `modules/movement/README.md`.
 
-Veja `modules/movement/README.md` para documentação e instruções específicas.
+## Navigation V1
+
+Fornece `findPath`, `followPath`, `goToPosition`, `goToBlock`, `goToEntity`, `replanPath`, `findSafeRoute`, `findNearestReachable`, `isReachable`, `estimatePathCost`, `escapeDanger` e `returnHome`.
+
+O A* trabalha em mundo 3D, trata slabs/stairs por alturas fracionárias, testa o volume corporal contra `Block.shapes`, diferencia mundo desconhecido de ar, penaliza hazards e replaneja quando a rota deixa de ser executável.
+
+Veja `modules/navigation/README.md`.
 
 ## Princípio do projeto
 

@@ -1,0 +1,2 @@
+import type { FindPathParams, PathSearchResult } from '../types/navigation.js'; import type { NavigationService } from '../runtime/NavigationService.js'; import type { NavigationSkill } from './NavigationSkill.js'
+export class FindPathSkill implements NavigationSkill<FindPathParams,PathSearchResult>{readonly name='findPath';readonly defaultTimeoutMs=10_000;constructor(private readonly service:NavigationService){}execute(p:FindPathParams,s?:AbortSignal){return this.service.findPath(p,s)}}
