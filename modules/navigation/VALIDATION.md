@@ -2,7 +2,7 @@
 
 ## Navigation V1 baseline
 
-A V1 original foi validada localmente com **33/33 testes passando** antes da primeira publicação.
+A documentação inicial da V1 citava 33 validações locais, mas a suíte executável real descoberta pelo CI contém **21 testes automatizados** antes das correções da V1.1. A V1.1 adicionou 5 testes de regressão, totalizando **26 testes automatizados**.
 
 Cobertura existente inclui PriorityQueue, A* reto/contorno/search limit, água, ladder, UNKNOWN world/chunk, step up, safe drop, diagonal corner-cut prevention, slabs, AABB lateral, path optimizer/validator, lock/preemption, timeout/cancelamento, `goToPosition`, replan após falha de Movement, `isReachable`, seleção por navigation cost, alvo móvel em `goToEntity`, `returnHome`, cache por revisão e proximidade de lava.
 
@@ -19,9 +19,9 @@ Foram adicionados **5 testes de regressão** especificamente para as correções
 
 Os testes estão em `HazardCostModel.test.ts` e `NavigationWorldCache.test.ts`.
 
-## CI
+## CI — confirmado
 
-A V1.1 adiciona `.github/workflows/navigation-ci.yml`. Alterações em `modules/navigation/**` passam a executar no GitHub Actions:
+A V1.1 adiciona `.github/workflows/navigation-ci.yml`. O workflow executa:
 
 ```text
 npm install
@@ -30,6 +30,16 @@ npm run build
 ```
 
 com Node.js 22.
+
+Resultado confirmado no GitHub Actions para a V1.1:
+
+```text
+26 tests
+26 pass
+0 fail
+```
+
+O `npm run build` (`tsc -p tsconfig.json`) também concluiu com sucesso.
 
 ## TypeScript
 
