@@ -25,7 +25,7 @@ Planner / State Machine / Behavior Tree
 | Módulo | Status | Descrição |
 | --- | --- | --- |
 | `movement` | ✅ V2 | Movimentação primitiva, percepção espacial local, obstáculos, verticalidade, água/escalada, recovery e follow dinâmico |
-| `navigation` | ✅ V1 | A* 3D, rotas, custos, collision shapes/AABB, slabs/stairs, água/escalada, path validation, replanning, alvos móveis, escape e return home |
+| `navigation` | ✅ V1.1 | A* 3D, rotas, custos tipados de hazards, cache espacial/chunk-aware, collision shapes/AABB, slabs/stairs, água/escalada, path validation, replanning, alvos móveis, escape e return home |
 | `mining` | ⏳ Próximo | Busca, mineração, veios e coleta |
 | `building` | ⏳ Futuro | Colocação, quebra e construção composta |
 | `inventory` | ⏳ Futuro | Consulta, seleção, movimentação e equipamento de itens |
@@ -46,7 +46,7 @@ Planner / State Machine / Behavior Tree
 ```text
 modules/
   movement/       # ✅ Movement V2
-  navigation/     # ✅ Navigation V1
+  navigation/     # ✅ Navigation V1.1
   mining/         # próximo
   ...
 ```
@@ -57,11 +57,11 @@ Fornece `moveTo`, `followPlayer`, `stop`, `jump`, `sprint`, `lookAt`, `avoidObst
 
 Veja `modules/movement/README.md`.
 
-## Navigation V1
+## Navigation V1.1
 
 Fornece `findPath`, `followPath`, `goToPosition`, `goToBlock`, `goToEntity`, `replanPath`, `findSafeRoute`, `findNearestReachable`, `isReachable`, `estimatePathCost`, `escapeDanger` e `returnHome`.
 
-O A* trabalha em mundo 3D, trata slabs/stairs por alturas fracionárias, testa o volume corporal contra `Block.shapes`, diferencia mundo desconhecido de ar, penaliza hazards e replaneja quando a rota deixa de ser executável.
+O A* trabalha em mundo 3D, trata slabs/stairs por alturas fracionárias, testa o volume corporal contra `Block.shapes`, diferencia mundo desconhecido de ar, usa custos específicos por tipo de hazard e mantém cache espacial/chunk-aware para evitar invalidação global desnecessária em servidores movimentados.
 
 Veja `modules/navigation/README.md`.
 
