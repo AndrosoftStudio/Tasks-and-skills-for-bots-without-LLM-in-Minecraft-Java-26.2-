@@ -25,6 +25,7 @@ export interface MiningWorld {
 }
 export interface MiningRunOptions { signal?:AbortSignal; timeoutMs?:number }
 export interface FindBlockParams { names:string|string[]; origin?:BlockPos; maxDistance?:number; count?:number; reachableOnly?:boolean; profile?:MiningProfile }
+export type FindOneBlockParams=Omit<FindBlockParams,'count'>
 export interface MineBlockParams { position:BlockPos; profile?:MiningProfile; range?:number; requireHarvestable?:boolean; collectDrops?:boolean; collectRadius?:number }
 export interface MineNearestParams extends Omit<FindBlockParams,'count'> { requireHarvestable?:boolean; collectDrops?:boolean }
 export interface MineVeinParams { position:BlockPos; blockNames?:string[]; maxBlocks?:number; maxRadius?:number; profile?:MiningProfile; requireHarvestable?:boolean; collectDrops?:boolean }
