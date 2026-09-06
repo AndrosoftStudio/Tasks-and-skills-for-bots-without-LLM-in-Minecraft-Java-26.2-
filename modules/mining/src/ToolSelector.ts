@@ -19,7 +19,7 @@ export class ToolSelector {
     const candidates=[...byKey.values()].filter(can).sort((a,b)=>(toolScore(b.name,block.name)+tierScore(b.name))-(toolScore(a.name,block.name)+tierScore(a.name)))
     const item=candidates[0]??null
     if(item)return{item,harvestable:true,reason:held&&itemKey(item)===itemKey(held)?'best tool already held':'best harvestable inventory tool'}
-    const bareHarvestable=block.canHarvest ? block.canHarvest(0) : true
+    const bareHarvestable=block.canHarvest ? block.canHarvest(null) : true
     return {item:null,harvestable:bareHarvestable,reason:bareHarvestable?'block is harvestable without a tool':'no inventory item can harvest block'}
   }
   async equipBest(block:MiningBlock):Promise<ToolDecision>{const d=this.choose(block);const held=this.world.getHeldItem();if(d.item&&(!held||itemKey(held)!==itemKey(d.item)))await this.world.equip(d.item,'hand');return d}
