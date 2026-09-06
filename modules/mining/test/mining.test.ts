@@ -1,0 +1,16 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { MiningService, type BlockPos, type InventoryItem, type ItemEntity, type MiningBlock, type MiningNavigation, type MiningWorld } from '../src/index.js'
+class FakeWorld implements MiningWorld{
+  pos:BlockPos={x:0,y:64,z:0};blocks=new Map<string,MiningBlock>();items:InventoryItem[]=[{name:'iron_pickaxe',type:10,count:1}];held:InventoryItem|null=null;drops:ItemEntity[]=[];count=0
+  k(p:BlockPos){return`${p.x},${p.y},${p.z}`} getBotPosition(){return this.pos} getBlock(p:BlockPos){return this.blocks.get(this.k(p))??null}
+  findBlocks(names:string[],o:BlockPos,d:number,c:number){return [...this.blocks.values()].filter(b=>names.includes(b.name)&&Math.hypot(b.position.x-o.x,b.position.y-o.y,b.position.z-o.z)<=d).slice(0,c)}
+  canDig(){return true} getHeldItem(){return this.held} getInventory(){return this.items} async equip(i:InventoryItem){this.held=i} async lookAtBlock(){}
+  async dig(b:MiningBlock){this.blocks.delete(this.k(b.position));this.drops=[{id:7,name:'item',type:'object',position:b.position}];this.count++}
+  getItemEntities(){const r=this.drops;this.drops=[];return r} inventoryCount(){return this.count} async wait(){}
+}
+const nav:MiningNavigation={async goToBlock(){return{ok:true}},async goToEntity(){return{ok:true}}}
+test('mineBlock equips a harvestable tool and verifies removal',async()=>{const w=new FakeWorld();const p={x:1,y:64,z:0};w.blocks.set(w.k(p),{name:'iron_ore',position:p,canHarvest:id=>id===10});const r=await new MiningService(w,nav).mineBlock({position:p,collectDrops:false});assert.equal(r.ok,true);assert.equal(r.data?.tool,'iron_pickaxe');assert.equal(w.getBlock(p),null)})
+test('mineBlock refuses valuable block without harvest tool',async()=>{const w=new FakeWorld();w.items=[];const p={x:1,y:64,z:0};w.blocks.set(w.k(p),{name:'diamond_ore',position:p,canHarvest:()=>false});const r=await new MiningService(w,nav).mineBlock({position:p,collectDrops:false});assert.equal(r.ok,false);assert.equal(r.error?.code,'NO_HARVEST_TOOL')})
+test('mineVein discovers only connected matching blocks',async()=>{const w=new FakeWorld();for(const p of [{x:1,y:64,z:0},{x:2,y:64,z:0},{x:2,y:65,z:0},{x:5,y:64,z:0}])w.blocks.set(w.k(p),{name:'coal_ore',position:p,canHarvest:()=>true});const r=await new MiningService(w,nav).mineVein({position:{x:1,y:64,z:0},collectDrops:false});assert.equal(r.ok,true);assert.equal(r.data?.mined.length,3)})
+test('mineNearest skips unreachable candidates',async()=>{const w=new FakeWorld();const a={x:1,y:64,z:0},b={x:3,y:64,z:0};w.blocks.set(w.k(a),{name:'coal_ore',position:a,canHarvest:()=>true});w.blocks.set(w.k(b),{name:'coal_ore',position:b,canHarvest:()=>true});let calls=0;const n:MiningNavigation={async goToBlock(){calls++;return{ok:calls>1}}};const r=await new MiningService(w,n).mineNearest({names:'coal_ore',collectDrops:false});assert.equal(r.ok,true);assert.deepEqual(r.data?.position,b)})
