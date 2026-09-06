@@ -7,18 +7,20 @@ const toolScore=(name:string,block:string)=>{
   if (/(leaves|wool|cobweb)/.test(block) && (name==='shears'||name.endsWith('_hoe'))) return 90
   return 0
 }
+const itemKey=(i:InventoryItem)=>`${i.type}:${i.metadata??0}`
 export class ToolSelector {
   constructor(private readonly world:MiningWorld){}
   choose(block:MiningBlock):ToolDecision {
     const held=this.world.getHeldItem()
-    const all=this.world.getInventory()
+    const byKey=new Map<string,InventoryItem>()
+    for(const item of this.world.getInventory())byKey.set(itemKey(item),item)
+    if(held)byKey.set(itemKey(held),held)
     const can=(item:InventoryItem)=> block.canHarvest ? block.canHarvest(item.type) : true
-    if (held && can(held)) return {item:held,harvestable:true,reason:'held item can harvest block'}
-    const candidates=all.filter(can).sort((a,b)=>(toolScore(b.name,block.name)+tierScore(b.name))-(toolScore(a.name,block.name)+tierScore(a.name)))
+    const candidates=[...byKey.values()].filter(can).sort((a,b)=>(toolScore(b.name,block.name)+tierScore(b.name))-(toolScore(a.name,block.name)+tierScore(a.name)))
     const item=candidates[0]??null
-    if (item) return {item,harvestable:true,reason:'best harvestable inventory tool'}
+    if(item)return{item,harvestable:true,reason:held&&itemKey(item)===itemKey(held)?'best tool already held':'best harvestable inventory tool'}
     const bareHarvestable=block.canHarvest ? block.canHarvest(0) : true
     return {item:null,harvestable:bareHarvestable,reason:bareHarvestable?'block is harvestable without a tool':'no inventory item can harvest block'}
   }
-  async equipBest(block:MiningBlock):Promise<ToolDecision>{ const d=this.choose(block); if(d.item && this.world.getHeldItem()?.type!==d.item.type) await this.world.equip(d.item,'hand'); return d }
+  async equipBest(block:MiningBlock):Promise<ToolDecision>{const d=this.choose(block);const held=this.world.getHeldItem();if(d.item&&(!held||itemKey(held)!==itemKey(d.item)))await this.world.equip(d.item,'hand');return d}
 }
