@@ -1,0 +1,34 @@
+name: Navigation CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules/navigation/**'
+      - '.github/workflows/navigation-ci.yml'
+  pull_request:
+    paths:
+      - 'modules/navigation/**'
+      - '.github/workflows/navigation-ci.yml'
+
+jobs:
+  test-navigation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: modules/navigation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modules/navigation/package.json
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test
+      - name: TypeScript build
+        run: npm run build
