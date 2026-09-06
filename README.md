@@ -27,7 +27,7 @@ Planner / State Machine / Behavior Tree
 | --- | --- | --- |
 | `movement` | ✅ V2 | Movimentação primitiva, percepção espacial local, obstáculos, verticalidade, água/escalada, recovery e follow dinâmico |
 | `navigation` | ✅ V1.1 | A* 3D, rotas, custos tipados de hazards, cache espacial/chunk-aware, collision shapes/AABB, slabs/stairs, água/escalada, path validation, replanning, alvos móveis, escape e return home |
-| `mining` | ✅ V1 | Busca, alcançabilidade sem side effects, seleção de ferramenta, mineração verificada, veios, coleta e recovery |
+| `mining` | ✅ V1.1 | Busca, LOS/reposition, seleção de ferramenta, mineração verificada, tratamento de blocos com gravidade, veios, coleta e recovery |
 | `building` | ⏳ Próximo | Colocação, quebra e construção composta |
 | `inventory` | ⏳ Futuro | Consulta, seleção, movimentação e equipamento de itens |
 | `crafting` | ⏳ Futuro | Receitas e crafting |
@@ -48,7 +48,7 @@ Planner / State Machine / Behavior Tree
 modules/
   movement/       # ✅ Movement V2
   navigation/     # ✅ Navigation V1.1
-  mining/         # ✅ Mining V1
+  mining/         # ✅ Mining V1.1
   building/       # próximo
   ...
 ```
@@ -67,11 +67,13 @@ O A* trabalha em mundo 3D, trata slabs/stairs por alturas fracionárias, testa o
 
 Veja `modules/navigation/README.md`.
 
-## Mining V1
+## Mining V1.1
 
 Fornece as skills `findBlock`, `mineBlock`, `mineNearest`, `collectDrop` e `mineVein`, além da consulta auxiliar `findBlocks`.
 
-O módulo reutiliza Navigation V1.1 por meio de um adaptador explícito, consulta `isReachable` sem deslocar o bot, revalida o alvo após a aproximação, usa `Block.canHarvest` para evitar perder drops, escolhe a melhor ferramenta harvestable, confirma a remoção pós-dig e limita a descoberta de veios por raio e quantidade.
+O módulo reutiliza Navigation V1.1 por meio de um adaptador explícito, consulta `isReachable` sem deslocar o bot, revalida o alvo após a aproximação, verifica linha de visão, tenta reposicionar por `goToPosition`, usa `Block.canHarvest(null)` para mão vazia, faz `dig` com face por raycast e diferencia blocos normais de blocos sujeitos a gravidade na verificação pós-dig.
+
+Inventário cheio permanece uma limitação explícita do Mining até existir o módulo `inventory`.
 
 Veja `modules/mining/README.md`.
 
