@@ -1,0 +1,24 @@
+import type { InventoryItem, MiningBlock, MiningWorld, ToolDecision } from './types.js'
+const tierScore=(name:string)=> name.includes('netherite_')?60:name.includes('diamond_')?50:name.includes('iron_')?40:name.includes('golden_')?35:name.includes('stone_')?30:name.includes('wooden_')?20:0
+const toolScore=(name:string,block:string)=>{
+  if (/(ore|stone|deepslate|netherrack|obsidian|anvil|rail)/.test(block) && name.endsWith('_pickaxe')) return 100
+  if (/(log|wood|stem|hyphae|planks|bookshelf|chest)/.test(block) && name.endsWith('_axe')) return 100
+  if (/(dirt|sand|gravel|clay|snow|soul_sand)/.test(block) && name.endsWith('_shovel')) return 100
+  if (/(leaves|wool|cobweb)/.test(block) && (name==='shears'||name.endsWith('_hoe'))) return 90
+  return 0
+}
+export class ToolSelector {
+  constructor(private readonly world:MiningWorld){}
+  choose(block:MiningBlock):ToolDecision {
+    const held=this.world.getHeldItem()
+    const all=this.world.getInventory()
+    const can=(item:InventoryItem)=> block.canHarvest ? block.canHarvest(item.type) : true
+    if (held && can(held)) return {item:held,harvestable:true,reason:'held item can harvest block'}
+    const candidates=all.filter(can).sort((a,b)=>(toolScore(b.name,block.name)+tierScore(b.name))-(toolScore(a.name,block.name)+tierScore(a.name)))
+    const item=candidates[0]??null
+    if (item) return {item,harvestable:true,reason:'best harvestable inventory tool'}
+    const bareHarvestable=block.canHarvest ? block.canHarvest(0) : true
+    return {item:null,harvestable:bareHarvestable,reason:bareHarvestable?'block is harvestable without a tool':'no inventory item can harvest block'}
+  }
+  async equipBest(block:MiningBlock):Promise<ToolDecision>{ const d=this.choose(block); if(d.item && this.world.getHeldItem()?.type!==d.item.type) await this.world.equip(d.item,'hand'); return d }
+}
