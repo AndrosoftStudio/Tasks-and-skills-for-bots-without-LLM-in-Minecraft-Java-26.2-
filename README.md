@@ -1,0 +1,1 @@
+# Tasks-and-skills-for-bots-without-LLM-in-Minecraft-Java-26.2-
