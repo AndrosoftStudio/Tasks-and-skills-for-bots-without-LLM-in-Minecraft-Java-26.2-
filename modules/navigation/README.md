@@ -1,4 +1,4 @@
-# Navigation — Minecraft Java 26.2 deterministic bot skills
+# Navigation V1.1 — Minecraft Java 26.2 deterministic bot skills
 
 Segundo módulo do projeto. O `Navigation` decide **por onde ir**; o `Movement V2` continua responsável por executar fisicamente cada trecho.
 
@@ -26,15 +26,26 @@ Segundo módulo do projeto. O `Navigation` decide **por onde ir**; o `Movement V
 - Geração de vizinhos para walk, diagonal, step up/down, safe drop, swim e climb.
 - Bloqueio de diagonal quando os cantos não comportam o corpo.
 - Modelo de custo por terreno/ação.
-- Penalidade por hazard e por proximidade de lava/perigos.
+- `HazardCostModel` ativo no custo real da rota, diferenciando lava, fogo/fogueira, cactus, magma, powder snow e berry bush.
+- Perfil de risco `fast` / `normal` / `safe` aplicado também ao gradiente de proximidade de hazards.
 - Mundo desconhecido/chunk não carregado tratado como `UNKNOWN`, nunca como ar.
-- Cache de blocos limitado e invalidado quando a revisão do mundo muda.
+- Cache de blocos limitado com invalidação espacial por bloco/vizinhança e invalidação por chunk; fallback global permanece apenas para backends que não expõem eventos espaciais.
 - Path optimizer conservador para trechos retos.
 - Path validator antes da execução.
 - Replanning quando Movement falha ou um waypoint fica inválido.
 - Alvo dinâmico em `goToEntity` com replanejamento em chunks de rota.
 - `NavigationLock` com prioridade e preemption segura para `escapeDanger`.
 - AbortSignal, timeout, limites de expansão e yield periódico do A*.
+
+## Correções da V1.1
+
+### Hazard cost real
+
+O `HazardCostModel` deixou de ser código morto. Ele agora participa diretamente de `NavigationCostModel` e também calcula o custo de proximidade usado pelo `WalkabilityAnalyzer`. Isso faz o planner distinguir tipos de perigo e aumentar/reduzir a aversão conforme o perfil escolhido.
+
+### Cache espacial
+
+`CachedNavigationWorld` não limpa mais todo o cache a cada `blockUpdate`/chunk event quando o backend fornece eventos espaciais. Mudanças em bloco invalidam apenas uma pequena vizinhança, enquanto load/unload de chunk remove somente entradas indexadas naquele chunk. Implementações genéricas de `NavigationWorld` sem eventos continuam usando invalidação global por revisão como fallback seguro.
 
 ## Relação com Movement V2
 
@@ -71,7 +82,8 @@ await navigation.goToPosition({
 
 const path = await navigation.findPath({
   target: new Vec3(150, 70, 40),
-  avoidHazards: true
+  avoidHazards: true,
+  profile: 'safe'
 })
 ```
 
