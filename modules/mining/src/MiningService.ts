@@ -59,7 +59,8 @@ export class MiningService {
       if(!this.sameTarget(initial,block))return this.fail('BLOCK_CHANGED','target changed before digging')
 
       const visible=await this.ensureVisible(initial,block,params,options)
-      if(!visible.ok||!visible.data)return visible as MiningResult<MinedBlockData>
+      if(!visible.ok)return{ok:false,error:visible.error}
+      if(!visible.data)return this.fail('BLOCK_NOT_VISIBLE','line-of-sight validation returned no visible target')
       block=visible.data
       if(block.diggable===false||!this.world.canDig(block))return this.fail('NOT_DIGGABLE',`block ${block.name} cannot be dug from the visible mining position`)
 
