@@ -1,45 +1,57 @@
-# Mining V1 — Real Server Test Checklist
+# Mining V1.1 — Real Test Checklist
 
-Use um mundo de teste Minecraft Java 26.2 com o bot conectado pelo Mineflayer customizado do projeto.
+Use este checklist em um servidor Minecraft Java 26.2 real com o fork Mineflayer 26.2 configurado pelo módulo.
 
-## 1. Busca
-- [ ] `findBlock` encontra carvão exposto próximo.
-- [ ] `findBlocks` respeita `maxDistance` e `count`.
-- [ ] `reachableOnly:true` não desloca o bot durante a consulta.
-- [ ] minério em chunk não carregado não é retornado como alvo válido.
+## 1. Linha de visão
+- [ ] Minério exposto na parede: minera sem reposicionamento desnecessário.
+- [ ] Minério dentro do alcance mas atrás de uma parede: não chama `dig` imediatamente.
+- [ ] Existe uma posição lateral acessível: o bot reposiciona e minera quando `canSeeBlock` passa a `true`.
+- [ ] Nenhuma posição acessível expõe o bloco: retorna `BLOCK_NOT_VISIBLE`.
+- [ ] O alvo é quebrado/trocado por outro jogador durante o reposicionamento: retorna `BLOCK_CHANGED`.
+- [ ] Minério no teto e no chão consegue obter uma face visível sem entrar no bloco.
 
-## 2. Ferramenta
-- [ ] troca da mão vazia para picareta adequada.
-- [ ] prefere picareta apropriada a item harvestable porém ineficiente.
-- [ ] recusa minério valioso quando não existe ferramenta capaz de gerar drop.
-- [ ] não tenta equipar item que desapareceu do inventário entre seleção e equip.
+## 2. Raycast de dig
+- [ ] `dig(..., 'raycast')` funciona no fork Mineflayer 26.2.
+- [ ] Face visível escolhida é aceita em servidor vanilla.
+- [ ] Testar em servidor com anti-cheat para confirmar que a orientação/face não dispara falsos positivos.
 
-## 3. Mine block
-- [ ] navega para alcance de interação sem entrar dentro do bloco.
-- [ ] olha para o alvo antes de cavar.
-- [ ] revalida o bloco após a aproximação.
-- [ ] retorna `BLOCK_CHANGED` se outro jogador quebrar/substituir o alvo.
-- [ ] confirma remoção do bloco após `dig`.
+## 3. Ferramentas
+- [ ] Mão vazia em bloco harvestable usa `canHarvest(null)`.
+- [ ] Ferro/diamante não são minerados com ferramenta incapaz de produzir o drop quando `requireHarvestable=true`.
+- [ ] Ferramenta correta substitui item harvestable porém mais lento quando disponível.
+- [ ] Item desaparecendo do inventário antes de `equip` resulta em falha controlada.
 
-## 4. Vein
-- [ ] minera veio conectado nas seis faces.
-- [ ] não inclui minério apenas diagonal.
-- [ ] respeita `maxBlocks`.
-- [ ] respeita `maxRadius`.
-- [ ] continua após um bloco individual falhar e registra em `skipped`.
+## 4. Verificação pós-dig
+- [ ] Stone/ore removido realmente desaparece e retorna sucesso.
+- [ ] Servidor/plugin cancela a quebra e o mesmo bloco normal continua presente: retorna `DIG_FAILED`.
+- [ ] Areia com outra areia acima: quebrar a inferior não retorna falso `DIG_FAILED` quando a superior cai no mesmo lugar.
+- [ ] Repetir com gravel.
+- [ ] Repetir com concrete powder.
+- [ ] Testar anvil/dragon egg apenas em ambiente controlado, confirmando comportamento do servidor.
 
-## 5. Drops
-- [ ] identifica entidade de item 26.2.
-- [ ] usa `goToEntity` para item móvel quando disponível.
-- [ ] confirma pickup por desaparecimento da entidade ou aumento do inventário.
-- [ ] encerra por timeout quando o drop fica inacessível.
+## 5. Veios
+- [ ] Veio conectado por faces é descoberto.
+- [ ] Bloco apenas diagonal não entra automaticamente no veio.
+- [ ] `maxBlocks` interrompe a expansão.
+- [ ] Hard cap 128 não é ultrapassado.
+- [ ] `maxRadius` impede expansão distante.
+- [ ] Bloco do veio mudando durante a execução é pulado com segurança.
 
-## 6. Segurança / ambiente
-- [ ] minério ao lado de lava com perfil `SAFE` usa a política de hazards do Navigation V1.1.
-- [ ] mineração perto de água não causa loop infinito.
-- [ ] alvo no teto e no chão respeita alcance vertical.
-- [ ] região protegida por plugin retorna falha limpa sem travar a task.
-- [ ] cancelar via `AbortSignal` interrompe busca/coleta/mineração composta.
+## 6. Drops e inventário
+- [ ] Drop próximo é coletado e confirmado por delta de inventário/desaparecimento da entidade.
+- [ ] Outro player coleta o drop primeiro: rotina não trava indefinidamente.
+- [ ] Inventário completamente cheio: `collectDrop` termina em `COLLECT_FAILED` após o deadline, sem loop infinito.
+- [ ] Inventário cheio mas com stack parcial compatível: confirmar pickup quando houver espaço no stack.
+- [ ] Registrar esse comportamento como limite intencional até existir o módulo `inventory`.
 
-## Critério de aceite
-Considerar Mining V1 validado em servidor real quando todos os itens críticos de busca, ferramenta, mine block e drops passarem em pelo menos três execuções consecutivas sem intervenção manual.
+## 7. Ambiente perigoso
+- [ ] Mineração ao lado de lava respeita a rota segura escolhida pelo Navigation.
+- [ ] Água ao redor do alvo não quebra reposicionamento.
+- [ ] Slabs/stairs/cavernas estreitas não levam o candidato de LOS para posição inválida sem recovery.
+
+## 8. Cancelamento e latência
+- [ ] Abort durante busca.
+- [ ] Abort durante reposicionamento.
+- [ ] Abort durante dig.
+- [ ] Abort durante coleta.
+- [ ] Latência alta não causa loop infinito nem múltiplos digs concorrentes.
